@@ -4,12 +4,15 @@ const userSchema = require('../schemas/user');
 
 // Middleware kiểm tra xác thực
 function verifyToken(req, res, next) {
-  const token = req.cookies.token;
+  // Lấy token từ Header hoặc cookie
+  const authHeader = req.headers['authorization'];
+  const token = authHeader?.startsWith('Bearer ') ? authHeader.split(' ')[1] : req.cookies.token;
+
   if (!token) return res.status(401).json({ error: 'Không có token' });
 
   try {
     const decoded = jwt.verify(token, constants.SECRET_KEY);
-    userSchema.findById(decoded.id).populate('role') // ⚠️ Lấy luôn thông tin role
+    userSchema.findById(decoded.id).populate('role')
       .then(user => {
         if (!user) return res.status(401).json({ error: 'Người dùng không tồn tại' });
         req.user = user;

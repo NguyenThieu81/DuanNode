@@ -4,21 +4,21 @@ const productController = require('../controllers/products');
 const multer = require('multer');
 const { verifyToken, check_authorization } = require('../utils/check_auth');
 
-// Cấu hình multer để upload ảnh vào thư mục public/uploads/
+// Configuring multer for image uploads
 const upload = multer({ dest: 'public/uploads/' });
 
 /**
- * Lấy danh sách tất cả sản phẩm (ai cũng được truy cập)
+ * Get all products (accessible by everyone)
  */
 router.get('/', productController.getAllProducts);
 
 /**
- * Lấy thông tin chi tiết sản phẩm theo ID
+ * Get product details by ID
  */
 router.get('/:id', productController.getProductById);
 
 /**
- * Thêm sản phẩm mới - chỉ admin
+ * Add a new product - Admin only
  */
 router.post(
   '/',
@@ -26,38 +26,55 @@ router.post(
   check_authorization(['admin']),
   upload.single('image'),
   async (req, res) => {
-    const data = { ...req.body, image: req.file?.filename };
-    const created = await productController.createProduct(data);
-    res.json(created);
+    try {
+      const data = { ...req.body, image: req.file?.filename };
+      const result = await productController.createProduct(data);
+
+      if (result.success) {
+        res.status(201).json(result);
+      } else {
+        res.status(400).json(result);
+      }
+    } catch (error) {
+      res.status(500).json({ success: false, message: 'Unknown error', error: error.message });
+    }
   }
 );
 
 /**
- * Cập nhật sản phẩm theo ID - chỉ admin
+ * Update a product by ID - Admin only
  */
-router.put(
-  '/:id',
-  verifyToken,
-  check_authorization(['admin']),
-  upload.single('image'),
-  async (req, res) => {
-    const data = { ...req.body, image: req.file?.filename };
-    const updated = await productController.updateProduct(req.params.id, data);
-    res.json(updated);
+router.put('/:id', verifyToken, check_authorization(['admin']), upload.single('image'), async (req, res) => {
+  try {
+    const data = { ...req.body };
+    if (req.file) {
+      data.image = req.file.filename;
+    }
+    const result = await productController.updateProduct(req.params.id, data);
+    if (result.success) {
+      res.json(result);
+    } else {
+      res.status(400).json(result);
+    }
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
   }
-);
+});
 
 /**
- * Xóa sản phẩm - chỉ admin
+ * Delete a product - Admin only
  */
-router.delete(
-  '/:id',
-  verifyToken,
-  check_authorization(['admin']),
-  async (req, res) => {
-    const deleted = await productController.deleteProduct(req.params.id);
-    res.json(deleted);
+router.delete('/:id', verifyToken, check_authorization(['admin']), async (req, res) => {
+  try {
+    const result = await productController.deleteProduct(req.params.id);
+    if (result.success) {
+      res.json(result);
+    } else {
+      res.status(404).json(result);
+    }
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
   }
-);
+});
 
 module.exports = router;

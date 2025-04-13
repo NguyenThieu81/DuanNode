@@ -8,32 +8,35 @@
     <link rel="stylesheet" href="styles/style.css">
 </head>
 <body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+        <div class="container">
+            <a class="navbar-brand" href="/admin/admin_dashboard.html">Admin</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="/admin/products.html">Quản lý sản phẩm</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/admin/categories.html">Quản lý danh mục</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/admin/users.html">Quản lý người dùng</a>
+                    </li>
+                </ul>
+                <ul class="navbar-nav">
+                    <li class="nav-item">
+                        <button id="logoutButton" class="btn btn-danger">Đăng xuất</button>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
     <div class="container-fluid">
         <div class="row">
-            <!-- Sidebar -->
-            <nav class="col-md-3 col-lg-2 d-md-block bg-dark sidebar">
-                <div class="position-sticky pt-3">
-                    <ul class="nav flex-column">
-                        <li class="nav-item">
-                            <a class="nav-link active" href="/admin/products.html">
-                                Quản lý Sản phẩm
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="/admin/categories.html">
-                                Quản lý Danh mục
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="/admin/users.html">
-                                Quản lý Người dùng
-                            </a>
-                        </li>
-                    </ul>
-                </div>
-            </nav>
-
-            <!-- Main content -->
             <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
                 <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
                     <h1>Quản lý Sản phẩm</h1>
@@ -42,7 +45,6 @@
                     </button>
                 </div>
 
-                <!-- Products Table -->
                 <div class="table-responsive">
                     <table class="table">
                         <thead>
@@ -64,7 +66,6 @@
         </div>
     </div>
 
-    <!-- Add Product Modal -->
     <div class="modal fade" id="addProductModal" tabindex="-1">
         <div class="modal-dialog">
             <div class="modal-content">
@@ -85,7 +86,7 @@
                         <div class="mb-3">
                             <label class="form-label">Danh mục</label>
                             <select class="form-select" name="category" required>
-                                <!-- Categories will be loaded here -->
+                                <option value="">Chọn danh mục</option>
                             </select>
                         </div>
                         <div class="mb-3">
@@ -107,6 +108,191 @@
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="../scripts/admin/products.js"></script>
+    <script>
+        let isEditing = false;
+        let editingProductId = null;
+        
+        document.addEventListener('DOMContentLoaded', async () => {
+            const token = localStorage.getItem('token');
+            if (!token) {
+                alert('Bạn chưa đăng nhập!');
+                window.location.href = '/login.html';
+                return;
+            }
+        
+            const logoutBtn = document.getElementById('logoutButton');
+            logoutBtn.addEventListener('click', () => {
+                localStorage.removeItem('token');
+                alert('Bạn đã đăng xuất thành công!');
+                window.location.href = '/login.html';
+            });
+        
+            await loadCategories();
+            await loadProducts();
+        
+            const saveButton = document.getElementById('saveProductBtn');
+        
+            document.getElementById('addProductModal').addEventListener('hidden.bs.modal', () => {
+                document.getElementById('addProductForm').reset();
+                document.querySelector('#addProductModal .modal-title').textContent = 'Thêm sản phẩm mới';
+                isEditing = false;
+                editingProductId = null;
+            });
+        
+            saveButton.addEventListener('click', async () => {
+                const form = document.getElementById('addProductForm');
+                if (!form.checkValidity()) {
+                    form.reportValidity();
+                    return;
+                }
+        
+                const formData = new FormData(form);
+                const url = isEditing
+                    ? `http://localhost:3000/products/${editingProductId}`
+                    : `http://localhost:3000/products`;
+                const method = isEditing ? 'PUT' : 'POST';
+        
+                try {
+                    const response = await fetch(url, {
+                        method,
+                        headers: { Authorization: `Bearer ${token}` },
+                        body: formData
+                    });
+        
+                    const result = await response.json();
+                    if (result.success) {
+                        alert(isEditing ? 'Cập nhật sản phẩm thành công!' : 'Thêm sản phẩm thành công!');
+                        await loadProducts();
+                        const modal = bootstrap.Modal.getInstance(document.getElementById('addProductModal'));
+                        modal.hide();
+                    } else {
+                        alert(`Lỗi: ${result.message}`);
+                    }
+                } catch (err) {
+                    console.error('Lỗi khi lưu sản phẩm:', err);
+                    alert('Đã xảy ra lỗi. Vui lòng thử lại.');
+                }
+            });
+        });
+        
+        async function loadCategories() {
+            const select = document.querySelector('select[name="category"]');
+            select.innerHTML = '<option value="">Chọn danh mục</option>';
+        
+            try {
+                const token = localStorage.getItem('token');
+                const res = await fetch('http://localhost:3000/categories', {
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+        
+                const data = await res.json();
+                const categories = Array.isArray(data) ? data : data.data;
+        
+                categories.forEach(cat => {
+                    const opt = document.createElement('option');
+                    opt.value = cat._id;
+                    opt.textContent = cat.name;
+                    select.appendChild(opt);
+                });
+            } catch (err) {
+                console.error('Lỗi khi tải danh mục:', err);
+                alert('Không thể tải danh mục.');
+            }
+        }
+        
+        async function loadProducts() {
+            const token = localStorage.getItem('token');  // Ensure token is loaded here too
+            try {
+                const res = await fetch('http://localhost:3000/products', {
+                    headers: { Authorization: `Bearer ${token}` }
+                });
+        
+                const result = await res.json();
+                const tbody = document.getElementById('productsTableBody');
+                tbody.innerHTML = '';
+        
+                if (result.success) {
+                    result.data.forEach(p => {
+                        const row = `
+                            <tr>
+                                <td>${p._id}</td>
+                                <td><img src="${p.imageUrl || ''}" alt="${p.name}" class="img-thumbnail" width="50"></td>
+                                <td>${p.name}</td>
+                                <td>${p.price.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' })}</td>
+                                <td>${p.category?.name || 'Không có danh mục'}</td>
+                                <td>
+                                    <button class="btn btn-warning btn-sm" onclick="editProduct('${p._id}')">Sửa</button>
+                                    <button class="btn btn-danger btn-sm" onclick="deleteProduct('${p._id}')">Xóa</button>
+                                </td>
+                            </tr>
+                        `;
+                        tbody.insertAdjacentHTML('beforeend', row);
+                    });
+                } else {
+                    alert('Lỗi khi tải sản phẩm: ' + result.message);
+                }
+            } catch (err) {
+                console.error('Lỗi khi tải sản phẩm:', err);
+                alert('Không thể tải danh sách sản phẩm.');
+            }
+        }
+        
+        async function deleteProduct(id) {
+            const token = localStorage.getItem('token'); // Ensure token is used here as well
+            if (!confirm('Bạn có chắc chắn muốn xóa sản phẩm này?')) return;
+        
+            try {
+                const res = await fetch(`http://localhost:3000/products/${id}`, {
+                    method: 'DELETE',
+                    headers: { Authorization: `Bearer ${token}` }
+                });
+        
+                const result = await res.json();
+                if (result.success) {
+                    alert('Sản phẩm đã được xóa.');
+                    await loadProducts();
+                } else {
+                    alert('Lỗi khi xóa sản phẩm: ' + result.message);
+                }
+            } catch (err) {
+                console.error('Lỗi khi xóa sản phẩm:', err);
+                alert('Không thể xóa sản phẩm.');
+            }
+        }
+        
+        async function editProduct(id) {
+            const token = localStorage.getItem('token'); // Ensure token is used here as well
+            try {
+                const res = await fetch(`http://localhost:3000/products/${id}`, {
+                    headers: { Authorization: `Bearer ${token}` }
+                });
+        
+                const result = await res.json();
+                if (result.success) {
+                    const product = result.data;
+                    const form = document.getElementById('addProductForm');
+                    form.name.value = product.name;
+                    form.price.value = product.price;
+                    form.description.value = product.description || '';
+                    form.category.value = product.category?._id || '';
+        
+                    document.querySelector('#addProductModal .modal-title').textContent = 'Chỉnh sửa sản phẩm';
+                    const modal = new bootstrap.Modal(document.getElementById('addProductModal'));
+                    modal.show();
+        
+                    isEditing = true;
+                    editingProductId = id;
+                } else {
+                    alert('Lỗi khi lấy thông tin sản phẩm: ' + result.message);
+                }
+            } catch (err) {
+                console.error('Lỗi khi lấy sản phẩm:', err);
+                alert('Không thể lấy thông tin sản phẩm.');
+            }
+        }
+    </script>
 </body>
 </html>

@@ -1,97 +1,199 @@
 <!DOCTYPE html>
 <html lang="vi">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Quản lý Danh mục - Admin</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="styles/style.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Quản lý Danh mục - Admin</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"/>
+  <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
-    <div class="container-fluid">
-        <div class="row">
-            <!-- Sidebar -->
-            <nav class="col-md-3 col-lg-2 d-md-block bg-dark sidebar">
-                <div class="position-sticky pt-3">
-                    <ul class="nav flex-column">
-                        <li class="nav-item">
-                            <a class="nav-link" href="/admin/products.html">
-                                Quản lý Sản phẩm
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link active" href="/admin/categories.html">
-                                Quản lý Danh mục
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="/admin/users.html">
-                                Quản lý Người dùng
-                            </a>
-                        </li>
-                    </ul>
-                </div>
-            </nav>
+  <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+    <div class="container">
+      <a class="navbar-brand" href="/admin/admin_dashboard.html">Admin</a>
+      <div class="collapse navbar-collapse">
+        <ul class="navbar-nav me-auto">
+          <li class="nav-item"><a class="nav-link" href="/admin/products.html">Quản lý sản phẩm</a></li>
+          <li class="nav-item"><a class="nav-link active" href="/admin/categories.html">Quản lý danh mục</a></li>
+          <li class="nav-item"><a class="nav-link" href="/admin/users.html">Quản lý người dùng</a></li>
+        </ul>
+        <ul class="navbar-nav">
+          <li class="nav-item">
+            <button id="logoutButton" class="btn btn-danger">Đăng xuất</button>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </nav>
 
-            <!-- Main content -->
-            <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
-                <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
-                    <h1>Quản lý Danh mục</h1>
-                    <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addCategoryModal">
-                        Thêm danh mục
-                    </button>
-                </div>
-
-                <!-- Categories Table -->
-                <div class="table-responsive">
-                    <table class="table">
-                        <thead>
-                            <tr>
-                                <th>ID</th>
-                                <th>Tên danh mục</th>
-                                <th>Số sản phẩm</th>
-                                <th>Ngày tạo</th>
-                                <th>Thao tác</th>
-                            </tr>
-                        </thead>
-                        <tbody id="categoriesTableBody">
-                            <!-- Categories will be loaded here -->
-                        </tbody>
-                    </table>
-                </div>
-            </main>
-        </div>
+  <div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+      <h1>Quản lý Danh mục</h1>
+      <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addCategoryModal">Thêm danh mục</button>
     </div>
 
-    <!-- Add Category Modal -->
-    <div class="modal fade" id="addCategoryModal" tabindex="-1">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">Thêm danh mục mới</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                </div>
-                <div class="modal-body">
-                    <form id="addCategoryForm">
-                        <div class="mb-3">
-                            <label class="form-label">Tên danh mục</label>
-                            <input type="text" class="form-control" name="name" required>
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label">Mô tả</label>
-                            <textarea class="form-control" name="description" rows="3"></textarea>
-                        </div>
-                    </form>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
-                    <button type="button" class="btn btn-primary" id="saveCategoryBtn">Lưu</button>
-                </div>
+    <div class="table-responsive">
+      <table class="table table-hover">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Tên danh mục</th>
+            <th>Ngày tạo</th>
+            <th>Thao tác</th>
+          </tr>
+        </thead>
+        <tbody id="categoriesTableBody">
+          <!-- Dữ liệu sẽ được thêm bằng JavaScript -->
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Modal Thêm/Sửa Danh mục -->
+  <div class="modal fade" id="addCategoryModal" tabindex="-1">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Danh mục</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <form id="categoryForm">
+            <input type="hidden" id="categoryId" />
+            <div class="mb-3">
+              <label class="form-label">Tên danh mục</label>
+              <input type="text" class="form-control" id="categoryName" required />
             </div>
+          </form>
         </div>
+        <div class="modal-footer">
+          <button class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+          <button class="btn btn-primary" id="saveCategoryBtn">Lưu</button>
+        </div>
+      </div>
     </div>
+  </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="../scripts/admin/categories.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    const token = localStorage.getItem('token');
+    if (!token) {
+      alert('Bạn chưa đăng nhập!');
+      window.location.href = '/login.html';
+    }
+
+    document.getElementById('logoutButton').addEventListener('click', () => {
+      localStorage.removeItem('token');
+      alert('Bạn đã đăng xuất.');
+      window.location.href = '/login.html';
+    });
+
+    async function loadCategories() {
+      try {
+        const response = await fetch('http://localhost:3000/categories');
+        const result = await response.json();
+
+        const data = Array.isArray(result) ? result : result.data;
+
+        const tbody = document.getElementById('categoriesTableBody');
+        tbody.innerHTML = '';
+
+        data.forEach(category => {
+          const row = `
+            <tr>
+              <td>${category._id}</td>
+              <td>${category.name}</td>
+              <td>${new Date(category.createdAt).toLocaleDateString()}</td>
+              <td>
+                <button class="btn btn-warning btn-sm" onclick="editCategory('${category._id}')">Sửa</button>
+                <button class="btn btn-danger btn-sm" onclick="deleteCategory('${category._id}')">Xóa</button>
+              </td>
+            </tr>`;
+          tbody.innerHTML += row;
+        });
+      } catch (err) {
+        console.error('Lỗi tải danh mục:', err);
+        alert('Không thể tải danh mục.');
+      }
+    }
+
+    document.getElementById('saveCategoryBtn').addEventListener('click', async () => {
+      const id = document.getElementById('categoryId').value;
+      const name = document.getElementById('categoryName').value.trim();
+
+      if (!name) return alert('Tên danh mục không được để trống.');
+
+      const method = id ? 'PUT' : 'POST';
+      const url = id
+        ? `http://localhost:3000/categories/${id}`
+        : 'http://localhost:3000/categories';
+
+      try {
+        const response = await fetch(url, {
+          method: method,
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({ name }),
+        });
+
+        const result = await response.json();
+        if (result.success || response.ok) {
+          alert(id ? 'Cập nhật thành công!' : 'Thêm danh mục thành công!');
+          document.getElementById('categoryForm').reset();
+          document.getElementById('categoryId').value = '';
+          bootstrap.Modal.getInstance(document.getElementById('addCategoryModal')).hide();
+          loadCategories();
+        } else {
+          alert(result.message || 'Có lỗi xảy ra.');
+        }
+      } catch (err) {
+        console.error(err);
+        alert('Không thể lưu danh mục.');
+      }
+    });
+
+    async function editCategory(id) {
+      try {
+        const response = await fetch(`http://localhost:3000/categories/${id}`);
+        const result = await response.json();
+        const category = result.data || result;
+
+        document.getElementById('categoryId').value = category._id;
+        document.getElementById('categoryName').value = category.name;
+
+        new bootstrap.Modal(document.getElementById('addCategoryModal')).show();
+      } catch (err) {
+        console.error('Lỗi khi tải danh mục:', err);
+        alert('Không thể tải thông tin danh mục.');
+      }
+    }
+
+    async function deleteCategory(id) {
+      if (confirm('Bạn có chắc muốn xóa danh mục này?')) {
+        try {
+          const response = await fetch(`http://localhost:3000/categories/${id}`, {
+            method: 'DELETE',
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          });
+          const result = await response.json();
+          if (result.success || response.ok) {
+            alert('Xóa thành công!');
+            loadCategories();
+          } else {
+            alert(result.message || 'Lỗi khi xóa.');
+          }
+        } catch (err) {
+          console.error(err);
+          alert('Không thể xóa danh mục.');
+        }
+      }
+    }
+
+    document.addEventListener('DOMContentLoaded', loadCategories);
+  </script>
 </body>
 </html>

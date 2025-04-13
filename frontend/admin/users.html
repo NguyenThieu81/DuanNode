@@ -1,113 +1,270 @@
 <!DOCTYPE html>
 <html lang="vi">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Quản lý Người dùng - Admin</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="styles/style.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Quản lý Người dùng - Admin</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="styles/style.css">
 </head>
 <body>
-    <div class="container-fluid">
-        <div class="row">
-            <!-- Sidebar -->
-            <nav class="col-md-3 col-lg-2 d-md-block bg-dark sidebar">
-                <div class="position-sticky pt-3">
-                    <ul class="nav flex-column">
-                        <li class="nav-item">
-                            <a class="nav-link" href="/admin/products.html">
-                                Quản lý Sản phẩm
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="/admin/categories.html">
-                                Quản lý Danh mục
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link active" href="/admin/users.html">
-                                Quản lý Người dùng
-                            </a>
-                        </li>
-                    </ul>
-                </div>
-            </nav>
-
-            <!-- Main content -->
-            <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
-                <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
-                    <h1>Quản lý Người dùng</h1>
-                    <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addUserModal">
-                        Thêm người dùng
-                    </button>
-                </div>
-
-                <!-- Users Table -->
-                <div class="table-responsive">
-                    <table class="table">
-                        <thead>
-                            <tr>
-                                <th>ID</th>
-                                <th>Avatar</th>
-                                <th>Username</th>
-                                <th>Email</th>
-                                <th>Vai trò</th>
-                                <th>Ngày tạo</th>
-                                <th>Thao tác</th>
-                            </tr>
-                        </thead>
-                        <tbody id="usersTableBody">
-                            <!-- Users will be loaded here -->
-                        </tbody>
-                    </table>
-                </div>
-            </main>
-        </div>
+  <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+    <div class="container">
+      <a class="navbar-brand" href="/admin/admin_dashboard.html">Admin</a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav me-auto">
+          <li class="nav-item"><a class="nav-link" href="/admin/products.html">Quản lý sản phẩm</a></li>
+          <li class="nav-item"><a class="nav-link" href="/admin/categories.html">Quản lý danh mục</a></li>
+          <li class="nav-item"><a class="nav-link" href="/admin/users.html">Quản lý người dùng</a></li>
+        </ul>
+        <ul class="navbar-nav">
+          <li class="nav-item">
+            <button id="logoutButton" class="btn btn-danger">Đăng xuất</button>
+          </li>
+        </ul>
+      </div>
     </div>
+  </nav>
 
-    <!-- Add User Modal -->
-    <div class="modal fade" id="addUserModal" tabindex="-1">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">Thêm người dùng mới</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                </div>
-                <div class="modal-body">
-                    <form id="addUserForm">
-                        <div class="mb-3">
-                            <label class="form-label">Username</label>
-                            <input type="text" class="form-control" name="username" required>
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label">Email</label>
-                            <input type="email" class="form-control" name="email" required>
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label">Mật khẩu</label>
-                            <input type="password" class="form-control" name="password" required>
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label">Vai trò</label>
-                            <select class="form-select" name="role" required>
-                                <!-- Roles will be loaded here -->
-                            </select>
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label">Avatar</label>
-                            <input type="file" class="form-control" name="avatar" accept="image/*">
-                        </div>
-                    </form>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
-                    <button type="button" class="btn btn-primary" id="saveUserBtn">Lưu</button>
-                </div>
+  <div class="container-fluid">
+    <div class="row">
+      <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
+        <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+          <h1>Quản lý Người dùng</h1>
+          <button class="btn btn-primary" onclick="openAddModal()">Thêm người dùng</button>
+        </div>
+
+        <!-- Users Table -->
+        <div class="table-responsive">
+          <table class="table">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Avatar</th>
+                <th>Username</th>
+                <th>Email</th>
+                <th>Vai trò</th>
+                <th>Ngày tạo</th>
+                <th>Thao tác</th>
+              </tr>
+            </thead>
+            <tbody id="userList">
+              <!-- Users will be loaded here -->
+            </tbody>
+          </table>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <!-- Add/Edit User Modal -->
+  <div class="modal fade" id="modalUser" tabindex="-1">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="modalTitle">Thêm người dùng</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <form id="formUser">
+            <input type="hidden" id="userId">
+            <div class="mb-3">
+              <label class="form-label">Username</label>
+              <input type="text" class="form-control" name="username" id="username" required>
             </div>
+            <div class="mb-3">
+              <label class="form-label">Email</label>
+              <input type="email" class="form-control" name="email" id="email" required>
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Mật khẩu</label>
+              <input type="password" class="form-control" name="password" id="password" required>
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Vai trò</label>
+                <select class="form-select" name="role" id="role" required>
+                  <!-- Các option sẽ được load vào đây -->
+                </select>
+              </div>
+              
+            <div class="mb-3">
+              <label class="form-label">Avatar</label>
+              <input type="text" class="form-control" name="avatar" id="avatar">
+            </div>
+          </form>
         </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+          <button type="submit" class="btn btn-primary" form="formUser">Lưu</button>
+        </div>
+      </div>
     </div>
+  </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="../scripts/admin/users.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    const token = localStorage.getItem("token");
+    const API_URL = "http://localhost:3000";
+
+    const userModal = new bootstrap.Modal(document.getElementById("modalUser"));
+    const userForm = document.getElementById("formUser");
+
+    document.addEventListener("DOMContentLoaded", () => {
+      if (!token) return alert("Vui lòng đăng nhập.");
+      loadUsers();
+      loadRoles();
+    });
+// Kiểm tra trạng thái đăng nhập admin
+        if (!token) {
+            alert('Bạn chưa đăng nhập!');
+            window.location.href = '/login.html';
+        }
+
+        // Xử lý nút đăng xuất
+        document.getElementById('logoutButton').addEventListener('click', () => {
+            localStorage.removeItem('token'); // Xóa token khỏi localStorage
+            alert('Bạn đã đăng xuất thành công!');
+            window.location.href = '/login.html'; // Quay lại trang đăng nhập
+        });
+    async function loadUsers() {
+      try {
+        const res = await fetch(`${API_URL}/users`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        const json = await res.json();
+        if (!json.success) return alert(json.message);
+
+        const tbody = document.getElementById("userList");
+        tbody.innerHTML = json.data.map(user => `
+          <tr>
+            <td>${user._id}</td>
+            <td><img src="${user.avatar || ''}" width="40"/></td>
+            <td>${user.username}</td>
+            <td>${user.email}</td>
+            <td>${user.role?.name || ''}</td>
+            <td>${new Date(user.createdAt).toLocaleString()}</td>
+            <td>
+              <button class="btn btn-warning btn-sm" onclick="editUser('${user._id}')">Sửa</button>
+              <button class="btn btn-danger btn-sm" onclick="deleteUser('${user._id}')">Xóa</button>
+            </td>
+          </tr>
+        `).join("");
+      } catch (err) {
+        console.error(err);
+        alert("Lỗi khi tải danh sách người dùng");
+      }
+    }
+
+    async function loadRoles() {
+  try {
+    const res = await fetch(`${API_URL}/roles`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    const json = await res.json();
+    if (json.success) {
+      const select = document.getElementById("role");
+      select.innerHTML = json.data.map(role =>
+        `<option value="${role._id}">${role.name}</option>`
+      ).join("");
+    } else {
+      alert("Không thể tải danh sách vai trò");
+    }
+  } catch (err) {
+    console.error("Không thể tải vai trò", err);
+  }
+}
+
+    function openAddModal() {
+      userForm.reset();
+      document.getElementById("userId").value = "";
+      document.getElementById("password").required = true;
+      document.getElementById("modalTitle").textContent = "Thêm người dùng";
+      userModal.show();
+    }
+
+    async function editUser(id) {
+      try {
+        const res = await fetch(`${API_URL}/users/${id}`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        const json = await res.json();
+        if (!json.success) return alert(json.message);
+
+        const u = json.data;
+        document.getElementById("userId").value = u._id;
+        document.getElementById("username").value = u.username;
+        document.getElementById("email").value = u.email;
+        document.getElementById("avatar").value = u.avatar || "";
+        document.getElementById("role").value = u.role?._id || "";
+        document.getElementById("password").value = "";
+        document.getElementById("password").required = false;
+        document.getElementById("modalTitle").textContent = "Chỉnh sửa người dùng";
+        userModal.show();
+      } catch (err) {
+        console.error(err);
+        alert("Lỗi khi lấy thông tin người dùng");
+      }
+    }
+
+    userForm.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const id = document.getElementById("userId").value;
+      const method = id ? "PUT" : "POST";
+      const url = id ? `${API_URL}/users/${id}` : `${API_URL}/users`;
+
+      const body = {
+        username: document.getElementById("username").value,
+        email: document.getElementById("email").value,
+        avatar: document.getElementById("avatar").value,
+        role: document.getElementById("role").value,
+      };
+      const password = document.getElementById("password").value;
+      if (password) body.password = password;
+
+      try {
+        const res = await fetch(url, {
+          method,
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${token}`,
+          },
+          body: JSON.stringify(body),
+        });
+        const json = await res.json();
+        if (json.success) {
+          userModal.hide();
+          loadUsers();
+        } else {
+          alert(json.message || "Thao tác thất bại");
+        }
+      } catch (err) {
+        console.error(err);
+        alert("Lỗi khi gửi dữ liệu");
+      }
+    });
+
+    async function deleteUser(id) {
+      if (!confirm("Bạn có chắc muốn xóa người dùng này?")) return;
+
+      try {
+        const res = await fetch(`${API_URL}/users/${id}`, {
+          method: "DELETE",
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        const json = await res.json();
+        if (json.success) {
+          loadUsers();
+        } else {
+          alert(json.message || "Không thể xóa");
+        }
+      } catch (err) {
+        console.error(err);
+        alert("Lỗi khi xóa người dùng");
+      }
+    }
+  </script>
 </body>
 </html>

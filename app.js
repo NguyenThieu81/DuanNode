@@ -10,7 +10,7 @@ const { CreateSuccessResponse, CreateErrorResponse } = require('./utils/response
 const app = express();
 
 // Kết nối MongoDB
-mongoose.connect('mongodb://localhost:27017/marketplace');
+mongoose.connect('mongodb://0.0.0.0:27017/marketplace');
 mongoose.connection.on('connected', () => {
   console.log('✅ MongoDB connected successfully!');
 });

@@ -1,17 +1,21 @@
 const productModel = require('../schemas/product');
 
 module.exports = {
-  async createProduct(req, res) {
+  async createProduct(data) {
     try {
-      const data = req.body;
-      if (req.file) {
-        data.image = req.file.filename;  // Lưu tên ảnh
-      }
       const product = new productModel(data);
       const saved = await product.save();
-      res.status(201).json({ success: true, message: 'Sản phẩm đã được tạo thành công', data: saved });
+      return {
+        success: true,
+        message: 'Sản phẩm đã được tạo thành công',
+        data: saved
+      };
     } catch (error) {
-      res.status(500).json({ success: false, message: 'Lỗi khi tạo sản phẩm', error: error.message });
+      return {
+        success: false,
+        message: 'Lỗi khi tạo sản phẩm',
+        error: error.message
+      };
     }
   },
 
@@ -49,27 +53,24 @@ module.exports = {
     }
   },
 
-  async updateProduct(req, res) {
+  async updateProduct(id, updateData) {
     try {
-      const id = req.params.id;
-      const updateData = req.body;
-      if (req.file) {
-        updateData.image = req.file.filename;  // Cập nhật ảnh nếu có
-      }
       const updated = await productModel.findByIdAndUpdate(id, updateData, { new: true });
-      res.json({ success: true, message: 'Cập nhật thành công', data: updated });
+      return { success: true, message: 'Cập nhật thành công', data: updated };
     } catch (error) {
-      res.status(500).json({ success: false, message: 'Lỗi khi cập nhật sản phẩm', error: error.message });
+      return { success: false, message: 'Lỗi khi cập nhật sản phẩm', error: error.message };
     }
   },
 
-  async deleteProduct(req, res) {
+  async deleteProduct(id) {
     try {
-      const id = req.params.id;
       const deleted = await productModel.findByIdAndDelete(id);
-      res.json({ success: true, message: 'Đã xóa sản phẩm', data: deleted });
+      if (!deleted) {
+        return { success: false, message: 'Sản phẩm không tồn tại' };
+      }
+      return { success: true, message: 'Đã xóa sản phẩm', data: deleted };
     } catch (error) {
-      res.status(500).json({ success: false, message: 'Lỗi khi xóa sản phẩm', error: error.message });
+      return { success: false, message: 'Lỗi khi xóa sản phẩm', error: error.message };
     }
   }
 };
