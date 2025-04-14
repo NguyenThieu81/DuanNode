@@ -41,6 +41,7 @@ app.use('/categories', require('./routes/categories'));
 app.use('/menus', require('./routes/menus'));
 app.use('/uploads', express.static('uploads'));
 
+
 // Catch 404 and forward to error handler
 app.use(function (req, res, next) {
   next(createError(404));

@@ -64,12 +64,22 @@ module.exports = {
 
   async getMe(req, res) {
     try {
-      const user = await userModel.findById(req.user._id)
-        .select('-password')
-        .populate('role');
-      res.json({ success: true, data: user });
+      const user = req.user; // Đảm bảo lấy user từ req.user sau khi đã xác thực
+      if (!user) return res.status(404).json({ success: false, message: 'User không tồn tại' });
+  
+      // Lấy đường dẫn đầy đủ cho avatar (có thể là URL tuyệt đối)
+      const avatarUrl = user.avatar ? `${process.env.BASE_URL}/uploads/${user.avatar}` : null;
+  
+      res.status(200).json({
+        success: true,
+        data: {
+          username: user.username,
+          avatar: avatarUrl,  // Trả về avatar đầy đủ
+        }
+      });
     } catch (err) {
-      res.status(400).json({ success: false, message: err.message });
+      res.status(500).json({ success: false, message: 'Lỗi hệ thống' });
     }
-  }
+  },
+  
 };

@@ -1,35 +1,37 @@
 const express = require('express');
 const router = express.Router();
-const bcrypt = require('bcrypt');
-const userModel = require('../schemas/user');
-const roleModel = require('../schemas/role');
+const userController = require('../controllers/users');
+const multer = require('multer');
 const { verifyToken, check_authorization } = require('../utils/check_auth');
 
-router.post('/', [verifyToken, check_authorization(['admin'])], async (req, res) => {
-  try {
-    const { username, password, email, role } = req.body;
+const upload = multer({ dest: 'public/uploads/' });
 
-    // Kiểm tra role tồn tại
-    const roleDoc = await roleModel.findById(role);
-    if (!roleDoc) {
-      return res.status(400).json({ success: false, message: 'Role không hợp lệ' });
-    }
+// Lấy danh sách user
+router.get('/', verifyToken, check_authorization(['admin']), userController.getAllUsers);
 
-    // Băm mật khẩu
-    const hashedPassword = await bcrypt.hash(password, 10);
+// Lấy user theo ID
+router.get('/:id', verifyToken, check_authorization(['admin']), userController.getUserById);
 
-    // Tạo user mới
-    const newUser = await userModel.create({
-      username,
-      password: hashedPassword,
-      email,
-      role
-    });
+// Thêm user mới
+router.post(
+  '/',
+  verifyToken,
+  check_authorization(['admin']),
+  upload.single('avatar'),
+  userController.createUser
+);
 
-    res.status(201).json({ success: true, message: 'Tạo user thành công', data: newUser });
-  } catch (err) {
-    res.status(400).json({ success: false, message: err.message });
-  }
-});
+// Cập nhật user
+router.put(
+  '/:id',
+  verifyToken,
+  check_authorization(['admin']),
+  upload.single('avatar'),
+  userController.updateUser
+);
+
+// Xóa user
+router.delete('/:id', verifyToken, check_authorization(['admin']), userController.deleteUser);
 
 module.exports = router;
+

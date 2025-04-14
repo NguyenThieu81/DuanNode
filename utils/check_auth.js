@@ -1,3 +1,4 @@
+// File: utils/check_auth.js
 const jwt = require('jsonwebtoken');
 const constants = require('./constants');
 const userSchema = require('../schemas/user');
